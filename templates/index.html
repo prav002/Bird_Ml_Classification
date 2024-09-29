@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bird Species Predictor</title>
+</head>
+<body>
+    <h1>Bird Species Predictor</h1>
+    <form id="upload-form">
+        <input type="file" name="file" required>
+        <button type="submit">Predict Bird Species</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+        const form = document.getElementById('upload-form');
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch('{{ url_for("predict") }}', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const result = await response.json();
+                const resultDiv = document.getElementById('result');
+
+                if (result.error) {
+                    resultDiv.innerHTML = `<p>Error: ${result.error}</p>`;
+                } else {
+                    resultDiv.innerHTML = `<p>Predicted species: ${result.bird_name} (Confidence: ${result.confidence_score})</p>`;
+                }
+            } catch (error) {
+                const resultDiv = document.getElementById('result');
+                resultDiv.innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        };
+    </script>
+</body>
+</html>
